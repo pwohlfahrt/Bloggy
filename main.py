@@ -1,26 +1,7 @@
-import os
-
 import flask
 import markdown
 
 app = flask.Flask(__name__)
-
-class Settings:
-    def __init__(self):
-        self.DEBUG = True
-        self.PORT = 8000
-        self.BLOG_NAME = 'My Blog'
-        self.NAV_LINKS = [
-            {'name': 'Blogs', 'url': '/blogs'},
-            {'name': 'Photos', 'url': '/photos'},
-        ]
-        self.COLOR_SCHEME = {
-            'primary': "#6D159F",
-            'secondary': "#6a0a90",
-            'background': "#1C0C1E",
-            'text': "#F7F7F7"
-        }
-        self.ALL_ARTICLES = [filename[:-3] for filename in os.listdir('content/blogs') if filename.endswith('.md')]
 
 class BlogsContext:
     def __init__(self, content, color_scheme, blog_name, links, all_articles):
@@ -57,5 +38,5 @@ def blog(title: str):
     return flask.render_template('blog.html', **context.__dict__)
 
 if __name__ == '__main__':
-    app.config.from_object(Settings())
+    app.config.from_pyfile('config.py')
     app.run(debug=app.config['DEBUG'], port=app.config['PORT'])
