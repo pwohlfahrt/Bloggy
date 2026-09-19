@@ -5,7 +5,7 @@
         const aside = document.querySelector('aside');
         aside.style.display = aside.style.display === 'none' ? 'block' : 'none';
         const main = document.querySelector('main');
-        main.style.width = aside.style.display === 'none' ? '100%' : '85%';
+        main.style.width = aside.style.display === 'none' ? '95%' : '80%';
     }
 </script>
 <aside>
@@ -16,9 +16,9 @@
         {% endfor %}
     </ul>
 </aside>
+<button id="more-button" onclick="toggleArticles()"><img src="/static/icons/more-svgrepo-com.svg"
+        alt="Show articles"></button>
 <main>
-    <button id="more-button" onclick="toggleArticles()"><img src="/static/icons/more-svgrepo-com.svg"
-            alt="Show articles"></button>
     <article>{{content | safe}}</article>
 </main>
 {% endblock %}
