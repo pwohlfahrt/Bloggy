@@ -1,27 +1,10 @@
 import flask
 import markdown
 
+import routes.cdn as cdn
+from utils.context_classes import BlogsContext
+
 app = flask.Flask(__name__)
-
-class BlogsContext:
-    def __init__(self, content, color_scheme, blog_name, links, all_articles):
-        self.content = content
-        self.color_scheme = color_scheme
-        self.blog_name = blog_name
-        self.links = links
-        self.all_articles = all_articles
-
-@app.route('/')
-def home():
-    return flask.render_template('index.html', color_scheme=app.config['COLOR_SCHEME'], blog_name=app.config['BLOG_NAME'])
-
-@app.route('/blogs')
-def blogs():
-    return flask.render_template('blogs.html', color_scheme=app.config['COLOR_SCHEME'], blog_name=app.config['BLOG_NAME'])
-
-@app.route('/photos')
-def photos():
-    return flask.render_template('photos.html', color_scheme=app.config['COLOR_SCHEME'], blog_name=app.config['BLOG_NAME'])
 
 @app.route('/blog/<title>')
 def blog(title: str):
@@ -39,4 +22,7 @@ def blog(title: str):
 
 if __name__ == '__main__':
     app.config.from_pyfile('config.py')
+
+    cdn.init_cdn(app)
+
     app.run(debug=app.config['DEBUG'], port=app.config['PORT'])

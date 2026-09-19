@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block window %}
+<style>
+    .article-list {
+        list-style-type: none;
+        margin: 5px;
+        padding: 5px;
+        background-color: {{ color_scheme.secondary }};
+    }
+</style>
+<!-- <aside>
+    <h3 style="text-align: center;">Read more</h3>
+    <ul>
+        {% for article in all_articles %}
+        <li><a href="/blog/{{article}}">{{article}}</a></li>
+        {% endfor %}
+    </ul>
+</aside> -->
+<main style="width: 60%; float: none; margin: 0 auto;">
+    <h1 style="text-align: center;">My articles</h1>
+    <ul>
+        {% for article in all_articles %}
+        <li class="article-list"><h2 style="margin-left: 20px"><a href="/blog/{{article}}">{{article}}</a></h2></li>
+        {% endfor %}
+    </ul>
+</main>
+{% endblock %}

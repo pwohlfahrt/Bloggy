@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{blog_name}}`s blog</title>
+    <style>
+        body {
+            background-color: {{ color_scheme.background }};
+            color: {{ color_scheme.text }};
+            font-family: Arial,
+            sans-serif;
+            margin: 0;
+            padding-top: 42px;
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: {{ color_scheme.text }};
+        }
+
+        nav {
+            background-color: {{ color_scheme.secondary }};
+            box-sizing: border-box;
+            padding: 3px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 42px;
+            z-index: 10;
+        }
+
+        nav ul {
+            margin: 0;
+            padding: 9px 3px;
+        }
+
+        nav li:first-child {
+            font-weight: bold;
+            margin-left: 30px;
+        }
+
+        nav li {
+            display: inline;
+            margin-right: 10px;
+        }
+
+
+        aside li {
+            margin-bottom: 5px;
+        }
+
+        a {
+            color: {{ color_scheme.text }};
+            text-decoration: none;
+        }
+
+        aside {
+            background-color: {{ color_scheme.secondary }};
+            box-sizing: border-box;
+            padding: 10px;
+            margin: 10px 0;
+            width: 15%;
+            min-height: calc(100vh - 62px);
+            float: left;
+        }
+
+        main {
+            box-sizing: border-box;
+            float: right;
+            width: 85%;
+        }
+
+        article {
+            width: 80%;
+            margin: 0 auto;
+            margin-top: 10px;
+            padding: 5%;
+            padding-top: 2%;
+
+            background-color: {{ color_scheme.secondary }};
+            min-height: calc(90vh - 67px);
+        }
+
+        #more-button {
+            position: fixed;
+            top: 52px;
+            margin-left: 10px;
+            width: 32px;
+            height: 32px;
+
+            background-color: {{ color_scheme.secondary }};
+            border: none;
+            border-radius: 50%;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">{{blog_name}}</a></li>
+            {% for link in links %}
+            <li><a href="{{link.url}}">{{link.name}}</a></li>
+            {% endfor %}
+        </ul>
+    </nav>
+    {% block window %}{% endblock %}
+</body>
+</html>
