@@ -13,7 +13,16 @@ class Comment(peewee.Model):
     class Meta:
         database = db
 
+class Views(peewee.Model):
+    id = peewee.AutoField()
+    blog_name = peewee.CharField(max_length=255)
+    remote_ip = peewee.CharField()
+    time_spend = peewee.IntegerField()
+
+    class Meta:
+        database = db
+
 def init_db():
     db.connect()
-    db.create_tables([Comment], safe=True)
+    db.create_tables([Comment, Views], safe=True)
     db.close()

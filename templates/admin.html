@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script>
+        function rerun_config(){
+            fetch("/admin/rerun_config")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Config reload failed (${response.status})`);
+                }
+                return response.json();
+            })
+            .then(status => {
+                console.log(status)
+                if(status.status == "ok"){
+                    alert("Config reruned succesfully")
+                } else {
+                    alert("Shit hit the fan")
+                }
+            })
+            .catch(error => {
+                console.error("Config reload failed:", error);
+                alert("Config reload failed");
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Hello {{admin_name}}</h1>
+    <button onclick="rerun_config()">Refresh config file</button>
+    <canvas id="mostReadBlogs" style="width:100%;max-width:700px"></canvas>
+    <script>
+        fetch("/admin/all_blogs")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load blog list");
+            }
+            return response.json();
+        })
+        .then(all_articles => {
+            const reading_time_requests = all_articles.map(article =>
+                fetch(`/admin/reading_time/${encodeURIComponent(article)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Could not load reading time for ${article}`);
+                        }
+                        return response.json();
+                    })
+            );
+
+            return Promise.all(reading_time_requests)
+                .then(results => ({
+                    all_articles,
+                    time_per_article: results.map(result => Number(result.time) || 0)
+                }));
+        })
+        .then(({ all_articles, time_per_article }) => {
+            new Chart("mostReadBlogs", {
+                type: 'bar',
+                data: {
+                    labels: all_articles,
+                    datasets: [
+                        {
+                            backgroundColor: all_articles.map((_, index) =>
+                                index % 2 === 0 ? "#6D159F" : "#F7F7F7"
+                            ),
+                            data: time_per_article
+                        }
+                    ]
+                },
+                options: {
+                    legend: {display: false},
+                    title: {
+                    display: true,
+                    text: "Most time spend reading a blog"
+                    }
+                }
+            })
+        })
+        .catch(error => {
+            console.error("Could not render reading chart:", error);
+        });
+    </script>
+</body>
+</html>

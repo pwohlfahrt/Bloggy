@@ -1,0 +1,16 @@
+import peewee
+from database.models import Views
+
+def add_viewing_blog(blog_name: str, ip: str, time_spend: int):
+    viewer = Views.get_or_none((Views.blog_name == blog_name) & (Views.remote_ip == ip))
+    if viewer != None:
+        viewer.time_spend += time_spend
+        viewer.save()
+    else:
+        Views.create(blog_name=blog_name, remote_ip=ip, time_spend=time_spend)
+
+def get_viewing_time_of_blog(blog_name: str):
+    return (Views
+            .select(peewee.fn.SUM(Views.time_spend).alias('total_time'))
+            .where(Views.blog_name == blog_name)
+            .scalar() or 0)

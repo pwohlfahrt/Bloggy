@@ -150,4 +150,29 @@
         <article class="blog-article">{{content | safe}}</article>
     </main>
 </div>
+<script>
+    let activeStart = Date.now();
+let totalActiveTime = 0;
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+        totalActiveTime += Date.now() - activeStart;
+    } else {
+        activeStart = Date.now();
+    }
+});
+
+window.addEventListener("pagehide", () => {
+    if (document.visibilityState === "visible") {
+        totalActiveTime += Date.now() - activeStart;
+    }
+
+    navigator.sendBeacon(
+        "/stats/blog_heartbeat/{{title}}",
+        new Blob([
+            JSON.stringify({ time_spent: totalActiveTime })
+        ], { type: "application/json" })
+    );
+});
+</script>
 {% endblock %}

@@ -6,6 +6,7 @@ from threading import Thread
 
 import routes.cdn as cdn
 import routes.comments as comments
+import routes.statistics as statistics
 import routes.admin as admin_route
 
 from database.models import init_db
@@ -35,6 +36,7 @@ def blog(title: str):
     
 
     context = BlogsContext(content=content,
+        title=title,
         color_scheme=app.config['COLOR_SCHEME'],
         blog_name=app.config['BLOG_NAME'],
         links=app.config['NAV_LINKS'],
@@ -67,6 +69,7 @@ if __name__ == '__main__':
     init_db()
     cdn.init_cdn(app, logger)
     comments.init_comments(app, logger)
+    statistics.init_stats(app, logging)
     admin_route.init_admin(app, admin, logger)
 
     logger.info(f"Starting Flask app on port {app.config['APP_PORT']} with debug={app.config['DEBUG']}")

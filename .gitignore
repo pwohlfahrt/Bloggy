@@ -8,3 +8,4 @@ pyvenv.cfg
 lib64
 logs/
 photos/
+*.db
