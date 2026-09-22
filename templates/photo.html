@@ -5,16 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{blog_name}}</title>
     <style>
-        main {
+        :root {
+            --panel: #6a0a90;
+            --panel-dark: #4d0869;
+            --text: #f7f7f7;
+            --muted: rgba(247, 247, 247, 0.68);
+            --line: rgba(247, 247, 247, 0.2);
+        }
+
+        * {
             box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #1c0c1e;
+            color: var(--text);
+            font-family: Arial, sans-serif;
+        }
+
+        main {
             float: left;
             width: 80%;
+            min-height: 100vh;
+            padding: 28px;
         }
+
+        main img {
+            width: 100%;
+            height: calc(100vh - 56px);
+            object-fit: contain;
+        }
+
         aside {
-            box-sizing: border-box;
             float: right;
             width: 20%;
-            padding: 10px;
+            min-height: 100vh;
+            padding: 28px 22px;
+            background: var(--panel);
+            box-shadow: -12px 0 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 42px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+        }
+
+        .comments-heading {
+            margin: 0 0 6px;
+            font-size: 1.6rem;
+        }
+
+        .comments-subtitle {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        #comments {
+            display: grid;
+            gap: 10px;
+            max-height: 45vh;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .comment {
+            padding: 12px;
+            border: 1px solid var(--line);
+            background: rgba(28, 12, 30, 0.22);
+        }
+
+        .comment-author {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .comment-content {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.85rem;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+
+        .comment-form {
+            display: grid;
+            gap: 9px;
+        }
+
+        .comment-form input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 0;
+            background: var(--panel-dark);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .comment-form input::placeholder {
+            color: var(--muted);
+        }
+
+        .comment-form button {
+            padding: 11px 14px;
+            border: 0;
+            background: var(--text);
+            color: var(--panel-dark);
+            cursor: pointer;
+            font: inherit;
+            font-weight: bold;
+        }
+
+        .comment-form button:hover {
+            background: white;
+        }
+
+        @media (max-width: 760px) {
+            main,
+            aside {
+                float: none;
+                width: 100%;
+            }
+
+            main {
+                min-height: auto;
+                padding: 18px;
+            }
+
+            main img {
+                height: 60vh;
+            }
+
+            aside {
+                min-height: auto;
+                padding: 24px 18px 30px;
+            }
+
+            .back-link {
+                margin-bottom: 26px;
+            }
         }
     </style>
 </head>
@@ -23,12 +167,46 @@
         <img src="/content/photos/{{content}}" alt="{{content}}" style="max-width: 100%; max-height: 100vh; display: block; margin: 0 auto;">
     </main>
     <aside>
-        <a href="/photos" style="display: block; text-align: center; margin-top: 10px;">Back to gallery</a>
-        <h3 style="text-align: center;">Comments</h3>
+        <a class="back-link" href="/photos">&larr; Back to gallery</a>
+        <h2 class="comments-heading">Comments</h2>
+        <p class="comments-subtitle">Leave a thought about this image.</p>
         <script>
-            // Placeholder for comments section
-            // You can integrate a comment system here, such as Disqus or a custom solution.
+            function sendComment(){
+                const author = document.getElementById("author").value
+                const content = document.getElementById("content").value
+                fetch("/comments/{{content}}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ author, content })
+                })
+            }
+            fetch('/comments/{{content}}')
+                .then(response => response.json())
+                .then(data => {
+                    const comments = document.getElementById('comments');
+                    data.forEach(comment => {
+                        const item = document.createElement('div');
+                        const author = document.createElement('strong');
+                        const content = document.createElement('p');
+                        item.className = 'comment';
+                        author.className = 'comment-author';
+                        content.className = 'comment-content';
+                        author.textContent = comment.author;
+                        content.textContent = comment.content;
+                        item.append(author, content);
+                        comments.appendChild(item);
+                    });
+                })
+                .catch(error => console.error('Error fetching comments:', error));
         </script>
+        <div id="comments"></div>
+        <form class="comment-form" onsubmit="event.preventDefault(); sendComment();">
+            <input type="text" name="author" id="author" placeholder="Your name" required>
+            <input type="text" name="content" id="content" placeholder="Write a comment..." required>
+            <button type="submit">Post comment</button>
+        </form>
     </aside>
 </body>
 </html>

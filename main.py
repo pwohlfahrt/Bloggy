@@ -4,6 +4,8 @@ import logging
 import datetime
 
 import routes.cdn as cdn
+import routes.comments as comments
+from database.models import init_db
 from utils.context_classes import BlogsContext
 
 app = flask.Flask(__name__)
@@ -57,7 +59,9 @@ def photo(filename: str):
 if __name__ == '__main__':
     app.config.from_pyfile('config.py')
 
+    init_db()
     cdn.init_cdn(app, logger)
+    comments.init_comments(app, logger)
 
     logger.info(f"Starting Flask app on port {app.config['PORT']} with debug={app.config['DEBUG']}")
     app.run(debug=app.config['DEBUG'], port=app.config['PORT'])

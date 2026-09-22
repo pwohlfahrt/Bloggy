@@ -14,3 +14,4 @@ COLOR_SCHEME = {
 }
 ALL_ARTICLES = [filename[:-3] for filename in os.listdir('content/blogs') if filename.endswith('.md')]
 PHOTOS_NAMES = [filename for filename in os.listdir('content/photos') if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+PHOTO_QUOTE = "The best photo is the one you take tomorrow"

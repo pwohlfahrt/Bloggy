@@ -38,7 +38,7 @@ def init_cdn(app, logger):
                 links=app.config['NAV_LINKS'],
                 all_articles=app.config['ALL_ARTICLES']
             )
-            res = flask.render_template('photos.html', **ctx.__dict__)
+            res = flask.render_template('photos.html', **ctx.__dict__, quote=app.config['PHOTO_QUOTE'])
             logger.debug("Serving photos page.")
             return res
         except Exception as e:
