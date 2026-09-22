@@ -35,6 +35,25 @@ def blog(title: str):
     )
     return flask.render_template('blog.html', **context.__dict__)
 
+@app.route('/photo/<filename>')
+def photo(filename: str):
+    if filename not in app.config['PHOTOS_NAMES']:
+        logger.info(f"Photo '{filename}' not found.")
+        return flask.abort(404)
+    try:
+        ctx = BlogsContext(content=filename,
+            color_scheme=app.config['COLOR_SCHEME'],
+            blog_name=app.config['BLOG_NAME'],
+            links=app.config['NAV_LINKS'],
+            all_articles=app.config['ALL_ARTICLES']
+        )
+        res = flask.render_template('photo.html', **ctx.__dict__)
+        logger.debug(f"Serving photo page for: {filename}")
+        return res
+    except Exception as e:
+        logger.error(f"An error occurred while serving photo page for '{filename}': {str(e)}")
+        return flask.abort(500)
+
 if __name__ == '__main__':
     app.config.from_pyfile('config.py')
 

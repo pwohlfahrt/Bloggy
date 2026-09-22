@@ -13,3 +13,4 @@ COLOR_SCHEME = {
     'text': "#F7F7F7"
 }
 ALL_ARTICLES = [filename[:-3] for filename in os.listdir('content/blogs') if filename.endswith('.md')]
+PHOTOS_NAMES = [filename for filename in os.listdir('content/photos') if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
