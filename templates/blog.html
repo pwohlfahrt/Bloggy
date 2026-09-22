@@ -1,24 +1,153 @@
 {% extends "base.html" %}
 {% block window %}
-<script>
-    function toggleArticles() {
-        const aside = document.querySelector('aside');
-        aside.style.display = aside.style.display === 'none' ? 'block' : 'none';
-        const main = document.querySelector('main');
-        main.style.width = aside.style.display === 'none' ? '95%' : '80%';
+<style>
+    .blog-shell {
+        display: grid;
+        grid-template-columns: minmax(180px, 220px) minmax(0, 1260px);
+        justify-content: center;
+        gap: clamp(20px, 4vw, 64px);
+        min-height: calc(100vh - 42px);
+        padding: 28px clamp(16px, 3vw, 36px) 64px;
     }
-</script>
-<aside>
-    <h3 style="text-align: center;">Read more</h3>
-    <ul>
-        {% for article in all_articles %}
-        <li><a href="/blog/{{article}}">{{article}}</a></li>
-        {% endfor %}
-    </ul>
-</aside>
-<button id="more-button" onclick="toggleArticles()"><img src="/static/icons/more-svgrepo-com.svg"
-        alt="Show articles"></button>
-<main>
-    <article>{{content | safe}}</article>
-</main>
+
+    .blog-index {
+        position: sticky;
+        top: 62px;
+        align-self: start;
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 18px;
+        float: none;
+        border: 1px solid rgba(247, 247, 247, 0.14);
+        background: rgba(106, 10, 144, 0.45);
+    }
+
+    .blog-index h2 {
+        margin: 0 0 16px;
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .blog-index ul {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .blog-index a {
+        display: block;
+        padding: 8px 10px;
+        color: rgba(247, 247, 247, 0.68);
+        font-size: 0.85rem;
+        overflow-wrap: anywhere;
+    }
+
+    .blog-index a:hover,
+    .blog-index a:focus-visible {
+        background: rgba(247, 247, 247, 0.1);
+        color: {{ color_scheme.text }};
+    }
+
+    .blog-main {
+        width: auto;
+        min-width: 0;
+        float: none;
+    }
+
+    .blog-article {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: clamp(24px, 5vw, 64px);
+        border: 1px solid rgba(247, 247, 247, 0.12);
+        background: linear-gradient(145deg, rgba(106, 10, 144, 0.82), rgba(77, 8, 105, 0.7));
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+    }
+
+    .blog-article > :first-child {
+        margin-top: 0;
+    }
+
+    .blog-article h1 {
+        margin-bottom: 24px;
+        font-size: clamp(2.1rem, 5vw, 4.5rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+    }
+
+    .blog-article h2 { margin-top: 2.4em; font-size: 1.65rem; }
+    .blog-article h3 { margin-top: 2em; font-size: 1.2rem; }
+
+    .blog-article p,
+    .blog-article li {
+        color: rgba(247, 247, 247, 0.82);
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .blog-article blockquote {
+        margin: 28px 0;
+        padding: 4px 0 4px 20px;
+        border-left: 3px solid {{ color_scheme.text }};
+        color: rgba(247, 247, 247, 0.72);
+        font-style: italic;
+    }
+
+    .blog-article code {
+        padding: 2px 6px;
+        background: rgba(28, 12, 30, 0.45);
+        font-family: monospace;
+        font-size: 0.88em;
+    }
+
+    .blog-article pre {
+        max-width: 100%;
+        overflow-x: auto;
+        margin: 28px 0;
+        padding: 18px;
+        background: #1c0c1e;
+    }
+
+    .blog-article pre code { padding: 0; background: transparent; line-height: 1.6; }
+
+    .blog-article img { display: block; max-width: 100%; height: auto; margin: 28px auto; }
+
+    .blog-article a {
+        color: {{ color_scheme.text }};
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+        .blog-shell {
+            display: block;
+            padding-top: 24px;
+        }
+
+        .blog-index {
+            position: static;
+            margin-bottom: 18px;
+        }
+
+        .blog-article { padding: 26px 20px; }
+    }
+</style>
+
+<div class="blog-shell">
+    <aside class="blog-index">
+        <h2>Read more</h2>
+        <ul>
+            {% for article in all_articles %}
+            <li><a href="/blog/{{article}}">{{article}}</a></li>
+            {% endfor %}
+        </ul>
+    </aside>
+    <main class="blog-main">
+        <article class="blog-article">{{content | safe}}</article>
+    </main>
+</div>
 {% endblock %}

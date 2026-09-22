@@ -2,13 +2,18 @@ import flask
 import markdown
 import logging
 import datetime
+from threading import Thread
 
 import routes.cdn as cdn
 import routes.comments as comments
+import routes.admin as admin_route
+
 from database.models import init_db
 from utils.context_classes import BlogsContext
 
 app = flask.Flask(__name__)
+admin = flask.Flask("admin")
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG if app.config.get('DEBUG', False) else logging.INFO)
 logger.addHandler(logging.FileHandler(f'logs/{datetime.datetime.now().strftime("%Y-%m-%d")}.log'))
@@ -62,6 +67,20 @@ if __name__ == '__main__':
     init_db()
     cdn.init_cdn(app, logger)
     comments.init_comments(app, logger)
+    admin_route.init_admin(app, admin, logger)
 
-    logger.info(f"Starting Flask app on port {app.config['PORT']} with debug={app.config['DEBUG']}")
-    app.run(debug=app.config['DEBUG'], port=app.config['PORT'])
+    logger.info(f"Starting Flask app on port {app.config['APP_PORT']} with debug={app.config['DEBUG']}")
+
+    Thread(
+        target=lambda: admin.run(
+            debug=app.config['DEBUG'],
+            use_reloader=False,
+            port=app.config['ADMIN_PORT']
+        ),
+        daemon=True
+    ).start()
+    app.run(
+        debug=app.config['DEBUG'],
+        use_reloader=False,
+        port=app.config['APP_PORT']
+    )
