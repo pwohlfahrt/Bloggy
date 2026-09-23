@@ -1,6 +1,7 @@
 import flask
 
-from database.statistics import get_viewing_time_of_blog
+from database.statistics import get_viewing_time_of_blog, get_latest_comments
+from database.admin import delete_comment
 
 def init_admin(app, admin, logging):
 
@@ -26,3 +27,30 @@ def init_admin(app, admin, logging):
     @admin.route('/admin/reading_time/<blog>')
     def reading_time(blog: str):
         return flask.jsonify({'status': "ok", 'time': get_viewing_time_of_blog(blog)})
+
+    @admin.route('/admin/latest_comments/<num>')
+    def latest_comments(num):
+        try:
+            limit = int(num)
+        except ValueError:
+            return flask.jsonify({
+                'status': 'error',
+                'description': 'num must be an integer'
+            }), 400
+
+        if limit < 1:
+            return flask.jsonify({
+                'status': 'error',
+                'description': 'num must be greater than zero'
+            }), 400
+
+        return flask.jsonify({'status': 'ok', 'comments': get_latest_comments(limit)})
+
+    @admin.route('/admin/delete_comment/<id>')
+    def remove_comment(id: int):
+        try:
+            delete_comment(id)
+        except Exception as e:
+            logging.error(f"Failed to remove comment: {id}")
+            return flask.abort(500)
+        return flask.jsonify({'status': "ok"})

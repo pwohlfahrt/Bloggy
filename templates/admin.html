@@ -15,7 +15,6 @@
                 return response.json();
             })
             .then(status => {
-                console.log(status)
                 if(status.status == "ok"){
                     alert("Config reruned succesfully")
                 } else {
@@ -27,12 +26,30 @@
                 alert("Config reload failed");
             });
         }
+
+        function removeComment(id){
+            fetch(`/admin/delete_comment/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Removing comment failed (${response.status})`);
+                }
+                return response.json();
+            })
+            .then(status => {
+                if(status.status == "ok"){
+                    document.getElementById(`comment-${id}`).remove()
+                } else {
+                    alert("Faild to remove comment")
+                }
+            })
+        }
     </script>
 </head>
 <body>
     <h1>Hello {{admin_name}}</h1>
     <button onclick="rerun_config()">Refresh config file</button>
     <canvas id="mostReadBlogs" style="width:100%;max-width:700px"></canvas>
+    <ul id="comment-box"></ul>
     <script>
         fetch("/admin/all_blogs")
         .then(response => {
@@ -83,6 +100,27 @@
         })
         .catch(error => {
             console.error("Could not render reading chart:", error);
+        });
+        fetch("/admin/latest_comments/5")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Could not load latest comments (${response.status})`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const box = document.getElementById("comment-box")
+            if (data.comments.length === 0) {
+                box.innerHTML = "<li>No comments yet.</li>";
+                return;
+            }
+
+            data.comments.forEach(comment => {
+                box.innerHTML += `<li id="comment-${comment.id}">${comment.content} ~${comment.author} <button onclick="removeComment(${comment.id})">Remove comment</button></li>`;
+            });
+        })
+        .catch(error => {
+            console.error("Could not load latest comments:", error);
         });
     </script>
 </body>
