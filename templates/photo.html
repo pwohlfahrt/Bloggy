@@ -181,6 +181,7 @@
                     },
                     body: JSON.stringify({ author, content })
                 })
+                location.reload();
             }
             fetch('/comments/{{content}}')
                 .then(response => response.json())
