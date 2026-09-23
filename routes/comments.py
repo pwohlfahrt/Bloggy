@@ -23,6 +23,12 @@ def init_comments(app, logger):
             if not author or not content:
                 logger.warning("Author or content missing in the request.")
                 return flask.abort(400, description="Author and content are required.")
+
+            if len(content) > 250:
+                return flask.abort(400, description="Content to long.")
+
+            if len(author) > 250:
+                return flask.abort(400, description="Author name to long.")
             
             create_comment(photo_name, author, content)
             logger.debug(f"Added comment by '{author}' for photo: {photo_name}")

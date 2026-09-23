@@ -1,4 +1,5 @@
 import flask
+import flask_limiter
 import markdown
 import logging
 import datetime
@@ -21,8 +22,16 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG if app.config.get('DEBUG', False) else logging.INFO)
 logger.addHandler(logging.FileHandler(f'logs/{datetime.datetime.now().strftime("%Y-%m-%d")}.log'))
 
+limiter = flask_limiter.Limiter(
+    key_func=flask_limiter.util.get_remote_address,
+    app=app,
+    default_limits=["10 per minute"],
+)
+
 @app.route('/blog/<title>')
 def blog(title: str):
+    if title not in app.config["ALL_ARTICLES"]:
+        return flask.abort(400, description="Invalid blog title")
     content = ''
     try:
         with open(f'content/blogs/{title}.md', 'r') as file:
