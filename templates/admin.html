@@ -50,6 +50,7 @@
     <button onclick="rerun_config()">Refresh config file</button>
     <canvas id="mostReadBlogs" style="width:100%;max-width:700px"></canvas>
     <ul id="comment-box"></ul>
+    <ul id="plugins"></ul>
     <script>
         fetch("/admin/all_blogs")
         .then(response => {
@@ -121,6 +122,31 @@
         })
         .catch(error => {
             console.error("Could not load latest comments:", error);
+        });
+        fetch("/admin/get_plugins")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Could not load latest comments (${response.status})`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const box = document.getElementById("plugins");
+            if (!data.isActive) {
+                box.innerHTML = "<li>Plugins are disabled</li>";
+                return;
+            }
+            if (data.list.length == 0){
+                box.innerHTML = "<li>There aren`t any plugins yet</li>";
+                return;
+            }
+
+            data.list.forEach(plugin => {
+                box.innerHTML += `<li>${plugin}</li>`;
+            });
+        })
+        .catch(error => {
+            console.error("Couldnt show plugins:", error);
         });
     </script>
 </body>

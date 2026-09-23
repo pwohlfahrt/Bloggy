@@ -1,4 +1,5 @@
 import flask
+import os
 
 from database.statistics import get_viewing_time_of_blog, get_latest_comments
 from database.admin import delete_comment
@@ -54,3 +55,10 @@ def init_admin(app, admin, logging):
             logging.error(f"Failed to remove comment: {id}")
             return flask.abort(500)
         return flask.jsonify({'status': "ok"})
+
+    @admin.route('/admin/get_plugins')
+    def get_plugins():
+        return {
+            'isActive': app.config["ENABLE_PLUGINS"],
+            'list': [filename for filename in os.listdir("plugins") if filename not in ["__init__.py", "__pycache__"]]
+        }
