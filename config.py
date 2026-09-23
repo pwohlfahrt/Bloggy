@@ -17,3 +17,4 @@ ALL_ARTICLES = [filename[:-3] for filename in os.listdir('content/blogs') if fil
 PHOTOS_NAMES = [filename for filename in os.listdir('content/photos') if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
 PHOTO_QUOTE = "The best photo is the one you take tomorrow!"
 ADMIN_NAME = "P"
+ENABLE_PLUGINS = True

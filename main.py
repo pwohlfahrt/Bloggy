@@ -2,6 +2,8 @@ import flask
 import markdown
 import logging
 import datetime
+import os
+import importlib
 from threading import Thread
 
 import routes.cdn as cdn
@@ -63,6 +65,14 @@ def photo(filename: str):
         logger.error(f"An error occurred while serving photo page for '{filename}': {str(e)}")
         return flask.abort(500)
 
+def load_plugins(app, admin, logger):
+    logger.warning("Executing files in your plugins folder. Are u sure u trust them?")
+    for file in os.listdir("plugins"):
+        if file in ["__pycache__", "__init__.py"]:
+            continue
+        module = importlib.import_module(f"plugins.{file.removesuffix(".py")}")
+        module.init_plugin(app, admin, logger)
+
 if __name__ == '__main__':
     app.config.from_pyfile('config.py')
 
@@ -71,6 +81,9 @@ if __name__ == '__main__':
     comments.init_comments(app, logger)
     statistics.init_stats(app, logging)
     admin_route.init_admin(app, admin, logger)
+
+    if app.config["ENABLE_PLUGINS"]:
+        load_plugins(app, admin, logger)
 
     logger.info(f"Starting Flask app on port {app.config['APP_PORT']} with debug={app.config['DEBUG']}")
 
