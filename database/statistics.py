@@ -21,3 +21,15 @@ def get_latest_comments(num: int) -> list[dict]:
                 .order_by(Comment.created_at.desc())
                 .limit(num))
     return [{"author": comment.author, "content": comment.content, "id": comment.id} for comment in res]
+
+def unique_views():
+    res = (Views
+           .select(Views.blog_name, peewee.fn.COUNT(peewee.fn.DISTINCT(Views.remote_ip)).alias("viewers"))
+           .group_by(Views.blog_name))
+    return [
+        {
+            "blog": blog.blog_name,
+            "viewers": getattr(blog, "viewers", 0)
+        }
+        for blog in res
+    ]

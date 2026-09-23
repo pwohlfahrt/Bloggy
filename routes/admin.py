@@ -1,7 +1,7 @@
 import flask
 import os
 
-from database.statistics import get_viewing_time_of_blog, get_latest_comments
+from database.statistics import get_viewing_time_of_blog, get_latest_comments, unique_views
 from database.admin import delete_comment
 
 def init_admin(app, admin, logging):
@@ -9,7 +9,11 @@ def init_admin(app, admin, logging):
     @admin.route('/admin')
     def admin_console():
         logging.warning("Serving admin console. Is it u?")
-        return flask.render_template("admin.html", admin_name=app.config["ADMIN_NAME"])
+        return flask.render_template(
+            "admin.html",
+            admin_name=app.config["ADMIN_NAME"],
+            color_scheme=app.config["COLOR_SCHEME"]
+        )
 
     @admin.route('/admin/rerun_config')
     def rerun_config():
@@ -28,6 +32,10 @@ def init_admin(app, admin, logging):
     @admin.route('/admin/reading_time/<blog>')
     def reading_time(blog: str):
         return flask.jsonify({'status': "ok", 'time': get_viewing_time_of_blog(blog)})
+
+    @admin.route('/admin/unique_views_per_blog')
+    def unique_views_per_blog():
+        return flask.jsonify({'status': "ok", "res": unique_views()})
 
     @admin.route('/admin/latest_comments/<num>')
     def latest_comments(num):

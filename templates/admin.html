@@ -5,149 +5,370 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-    <script>
-        function rerun_config(){
-            fetch("/admin/rerun_config")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Config reload failed (${response.status})`);
-                }
-                return response.json();
-            })
-            .then(status => {
-                if(status.status == "ok"){
-                    alert("Config reruned succesfully")
-                } else {
-                    alert("Shit hit the fan")
-                }
-            })
-            .catch(error => {
-                console.error("Config reload failed:", error);
-                alert("Config reload failed");
-            });
+    <style>
+        :root {
+            --ink: {{ color_scheme.text }};
+            --paper: {{ color_scheme.background }};
+            --muted: rgba(247, 247, 247, 0.68);
+            --line: rgba(247, 247, 247, 0.16);
+            --accent: {{ color_scheme.primary }};
+            --accent-dark: {{ color_scheme.secondary }};
+            --highlight: #d9e66f;
+            --card: rgba(106, 10, 144, 0.72);
         }
 
-        function removeComment(id){
-            fetch(`/admin/delete_comment/${id}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Removing comment failed (${response.status})`);
-                }
-                return response.json();
-            })
-            .then(status => {
-                if(status.status == "ok"){
-                    document.getElementById(`comment-${id}`).remove()
-                } else {
-                    alert("Faild to remove comment")
-                }
-            })
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Arial, sans-serif;
         }
-    </script>
+
+        button { font: inherit; }
+
+        .dashboard {
+            width: min(1440px, 100%);
+            margin: 0 auto;
+            padding: 30px clamp(18px, 4vw, 64px) 64px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--highlight);
+            font: 700 0.72rem/1.2 Arial, sans-serif;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, p { margin-top: 0; }
+
+        h1 {
+            max-width: 620px;
+            margin-bottom: 0;
+            font-size: clamp(2.5rem, 6vw, 5.8rem);
+            line-height: 0.9;
+            letter-spacing: -0.06em;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-badge {
+            padding: 10px 13px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--muted);
+            font: 700 0.75rem Arial, sans-serif;
+        }
+
+        .action-button {
+            padding: 11px 15px;
+            border: 0;
+            background: var(--ink);
+            color: var(--ink);
+            cursor: pointer;
+            font: 700 0.75rem Arial, sans-serif;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .action-button:hover { background: var(--accent-dark); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .panel {
+            min-width: 0;
+            padding: clamp(18px, 3vw, 30px);
+            border: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .panel--dark {
+            background: var(--accent-dark);
+            color: var(--ink);
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .panel-heading h2 {
+            margin-bottom: 4px;
+            font-size: 1.35rem;
+            letter-spacing: -0.03em;
+        }
+
+        .panel-heading p {
+            margin-bottom: 0;
+            color: var(--muted);
+            font: 0.75rem Arial, sans-serif;
+        }
+
+        .panel--dark .panel-heading p { color: rgba(242, 238, 231, 0.64); }
+
+        .chart-wrap {
+            position: relative;
+            height: 320px;
+        }
+
+        .lower-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+            gap: 18px;
+        }
+
+        .list {
+            display: grid;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--line);
+            font: 0.9rem Arial, sans-serif;
+        }
+
+        .list-item:last-child { border-bottom: 0; }
+
+        .comment-copy {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .comment-author {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--highlight);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .comment-text { color: var(--ink); }
+
+        .remove-button {
+            flex: 0 0 auto;
+            padding: 7px 9px;
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .remove-button:hover { border-color: var(--highlight); color: var(--highlight); }
+
+        .plugin-list .list-item { font-weight: 700; }
+
+        .empty-state {
+            margin: 0;
+            padding: 22px 0;
+            color: var(--muted);
+            font: 0.85rem Arial, sans-serif;
+        }
+
+        @media (max-width: 850px) {
+            .topbar { align-items: start; flex-direction: column; }
+            .stats-grid, .lower-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 520px) {
+            .dashboard { padding-top: 22px; }
+            .topbar-actions { align-items: start; flex-direction: column; }
+            .chart-wrap { height: 260px; }
+            .panel { padding: 18px; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello {{admin_name}}</h1>
-    <button onclick="rerun_config()">Refresh config file</button>
-    <canvas id="mostReadBlogs" style="width:100%;max-width:700px"></canvas>
-    <ul id="comment-box"></ul>
-    <ul id="plugins"></ul>
+    <main class="dashboard">
+        <header class="topbar">
+            <div>
+                <h1>Good day, {{admin_name}}.</h1>
+            </div>
+            <div class="topbar-actions">
+                <span class="admin-badge">Admin console</span>
+                <button class="action-button" type="button" onclick="rerun_config()">Refresh config</button>
+            </div>
+        </header>
+
+        <section class="stats-grid" aria-label="Blog analytics">
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Reading time</h2>
+                        <p>Total time spent per article</p>
+                    </div>
+                </div>
+                <div class="chart-wrap"><canvas id="mostReadBlogs"></canvas></div>
+            </article>
+            <article class="panel panel--dark">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Unique readers</h2>
+                        <p>Distinct visitors per article</p>
+                    </div>
+                </div>
+                <div class="chart-wrap"><canvas id="uniqueViewsPerBlog"></canvas></div>
+            </article>
+        </section>
+
+        <section class="lower-grid" aria-label="Admin details">
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Latest comments</h2>
+                        <p>Recent reader activity</p>
+                    </div>
+                </div>
+                <ul class="list" id="comment-box"><li class="empty-state">Loading comments...</li></ul>
+            </article>
+            <article class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Plugins</h2>
+                        <p>Installed extensions</p>
+                    </div>
+                </div>
+                <ul class="list plugin-list" id="plugins"><li class="empty-state">Loading plugins...</li></ul>
+            </article>
+        </section>
+    </main>
+
     <script>
-        fetch("/admin/all_blogs")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Could not load blog list");
-            }
-            return response.json();
-        })
-        .then(all_articles => {
-            const reading_time_requests = all_articles.map(article =>
-                fetch(`/admin/reading_time/${encodeURIComponent(article)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Could not load reading time for ${article}`);
-                        }
-                        return response.json();
-                    })
-            );
+        function rerun_config() {
+            fetch("/admin/rerun_config")
+                .then(response => {
+                    if (!response.ok) throw new Error(`Config reload failed (${response.status})`);
+                    return response.json();
+                })
+                .then(status => alert(status.status === "ok" ? "Config refreshed" : "Config reload failed"))
+                .catch(error => {
+                    console.error("Config reload failed:", error);
+                    alert("Config reload failed");
+                });
+        }
 
-            return Promise.all(reading_time_requests)
-                .then(results => ({
-                    all_articles,
-                    time_per_article: results.map(result => Number(result.time) || 0)
-                }));
-        })
-        .then(({ all_articles, time_per_article }) => {
-            new Chart("mostReadBlogs", {
-                type: 'bar',
-                data: {
-                    labels: all_articles,
-                    datasets: [
-                        {
-                            backgroundColor: all_articles.map((_, index) =>
-                                index % 2 === 0 ? "#6D159F" : "#F7F7F7"
-                            ),
-                            data: time_per_article
-                        }
-                    ]
-                },
-                options: {
-                    legend: {display: false},
-                    title: {
-                    display: true,
-                    text: "Most time spend reading a blog"
-                    }
+        function removeComment(id) {
+            fetch(`/admin/delete_comment/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Removing comment failed (${response.status})`);
+                    return response.json();
+                })
+                .then(status => {
+                    if (status.status === "ok") document.getElementById(`comment-${id}`)?.remove();
+                })
+                .catch(error => console.error("Removing comment failed:", error));
+        }
+
+        function chartOptions(title, dark) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { display: false },
+                title: { display: true, text: title, fontColor: "{{ color_scheme.text }}" },
+                scales: {
+                    xAxes: [{ ticks: { fontColor: "{{ color_scheme.text }}" }, gridLines: { display: false } }],
+                    yAxes: [{ ticks: { beginAtZero: true, fontColor: "{{ color_scheme.text }}", stepSize: 1 }, gridLines: { color: "rgba(247,247,247,.16)" } }]
                 }
-            })
-        })
-        .catch(error => {
-            console.error("Could not render reading chart:", error);
-        });
+            };
+        }
+
+        fetch("/admin/all_blogs")
+            .then(response => response.json())
+            .then(all_articles => Promise.all(all_articles.map(article =>
+                fetch(`/admin/reading_time/${encodeURIComponent(article)}`).then(response => response.json())
+            )).then(results => ({ all_articles, values: results.map(result => Number(result.time / 1000) || 0) })))
+            .then(({ all_articles, values }) => new Chart("mostReadBlogs", {
+                type: "bar",
+                data: { labels: all_articles, datasets: [{ backgroundColor: "{{ color_scheme.primary }}", data: values }] },
+                options: chartOptions("Time spent reading", false)
+            }))
+            .catch(error => console.error("Could not render reading chart:", error));
+
+        fetch("/admin/unique_views_per_blog")
+            .then(response => response.json())
+            .then(data => new Chart("uniqueViewsPerBlog", {
+                type: "bar",
+                data: { labels: data.res.map(row => row.blog), datasets: [{ backgroundColor: "#d9e66f", data: data.res.map(row => Number(row.viewers) || 0) }] },
+                options: chartOptions("Unique viewers", true)
+            }))
+            .catch(error => console.error("Could not render unique views chart:", error));
+
         fetch("/admin/latest_comments/5")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Could not load latest comments (${response.status})`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const box = document.getElementById("comment-box")
-            if (data.comments.length === 0) {
-                box.innerHTML = "<li>No comments yet.</li>";
-                return;
-            }
+            .then(response => response.json())
+            .then(data => {
+                const box = document.getElementById("comment-box");
+                box.innerHTML = "";
+                if (!data.comments.length) {
+                    box.innerHTML = '<li class="empty-state">No comments yet.</li>';
+                    return;
+                }
+                data.comments.forEach(comment => {
+                    const item = document.createElement("li");
+                    item.id = `comment-${comment.id}`;
+                    item.className = "list-item";
+                    item.innerHTML = `<div class="comment-copy"><span class="comment-author"></span><span class="comment-text"></span></div><button class="remove-button" type="button">Remove</button>`;
+                    item.querySelector(".comment-author").textContent = comment.author;
+                    item.querySelector(".comment-text").textContent = comment.content;
+                    item.querySelector("button").onclick = () => removeComment(comment.id);
+                    box.appendChild(item);
+                });
+            })
+            .catch(error => console.error("Could not load latest comments:", error));
 
-            data.comments.forEach(comment => {
-                box.innerHTML += `<li id="comment-${comment.id}">${comment.content} ~${comment.author} <button onclick="removeComment(${comment.id})">Remove comment</button></li>`;
-            });
-        })
-        .catch(error => {
-            console.error("Could not load latest comments:", error);
-        });
         fetch("/admin/get_plugins")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Could not load latest comments (${response.status})`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const box = document.getElementById("plugins");
-            if (!data.isActive) {
-                box.innerHTML = "<li>Plugins are disabled</li>";
-                return;
-            }
-            if (data.list.length == 0){
-                box.innerHTML = "<li>There aren`t any plugins yet</li>";
-                return;
-            }
-
-            data.list.forEach(plugin => {
-                box.innerHTML += `<li>${plugin}</li>`;
-            });
-        })
-        .catch(error => {
-            console.error("Couldnt show plugins:", error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                const box = document.getElementById("plugins");
+                box.innerHTML = "";
+                if (!data.isActive) {
+                    box.innerHTML = '<li class="empty-state">Plugins are disabled.</li>';
+                    return;
+                }
+                if (!data.list.length) {
+                    box.innerHTML = '<li class="empty-state">No plugins installed.</li>';
+                    return;
+                }
+                data.list.forEach(plugin => {
+                    const item = document.createElement("li");
+                    item.className = "list-item";
+                    item.textContent = plugin;
+                    box.appendChild(item);
+                });
+            })
+            .catch(error => console.error("Could not show plugins:", error));
     </script>
 </body>
 </html>
