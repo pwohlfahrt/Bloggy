@@ -23,7 +23,7 @@ logger.setLevel(logging.DEBUG if app.config.get('DEBUG', False) else logging.INF
 logger.addHandler(logging.FileHandler(f'logs/{datetime.datetime.now().strftime("%Y-%m-%d")}.log'))
 
 limiter = flask_limiter.Limiter(
-    key_func=flask_limiter.util.get_remote_address,
+    key_func=flask_limiter.util.get_remote_address, #type: ignore
     app=app,
     default_limits=["10 per minute"],
 )

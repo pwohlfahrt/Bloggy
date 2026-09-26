@@ -18,3 +18,10 @@ PHOTOS_NAMES = [filename for filename in os.listdir('content/photos') if filenam
 PHOTO_QUOTE = "The best photo is the one you take tomorrow!"
 ADMIN_NAME = "P"
 ENABLE_PLUGINS = True
+HOMEPAGE_TEXT = {
+    'home_eyebrow': 'Notes from the edge of ordinary',
+    'home_heading': 'A blog for curious days.',
+    'home_intro': 'Ideas, images, experiments, and the occasional detour. Take a look around and stay as long as something catches your eye.',
+    'feature_label': 'From the visual archive',
+    'feature_title': 'Small frames, wide worlds.'
+}
