@@ -25,7 +25,7 @@ logger.addHandler(logging.FileHandler(f'logs/{datetime.datetime.now().strftime("
 limiter = flask_limiter.Limiter(
     key_func=flask_limiter.util.get_remote_address, #type: ignore
     app=app,
-    default_limits=["10 per minute"],
+    default_limits=["100 per minute"],
 )
 
 @app.route('/blog/<title>')
