@@ -55,10 +55,10 @@ def init_admin(app, admin, logging):
 
         return flask.jsonify({'status': 'ok', 'comments': get_latest_comments(limit)})
 
-    @admin.route('/admin/delete_comment/<id>')
-    def remove_comment(id: int):
+    @admin.route('/admin/delete_comment/<id>/<blog_comment>')
+    def remove_comment(id: int, blog_comment: str):
         try:
-            delete_comment(id)
+            delete_comment(id, blog_comment=bool(blog_comment))
         except Exception as e:
             logging.error(f"Failed to remove comment: {id}")
             return flask.abort(500)

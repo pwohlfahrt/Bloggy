@@ -55,3 +55,14 @@ def init_cdn(app, logger):
         except Exception as e:
             logger.error(f"An error occurred while serving photo '{filename}': {str(e)}")
             return flask.abort(500)
+
+    @app.route('/blog/discussions/<blog>')
+    def serve_discussion(blog: str):
+        try:
+            ctx = empty_ctx
+            ctx.title = blog
+            logger.debug(f"Serving discussion page for {blog}")
+            return flask.render_template('discussion.html', **ctx.__dict__)
+        except Exception as e:
+            logger.error(f"Error while serving discussion page for {blog}: {e}")
+            return flask.abort(500)

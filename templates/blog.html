@@ -17,10 +17,12 @@
         width: auto;
         min-height: 0;
         margin: 0;
-        padding: 18px;
+        padding: 18px 18px 14px;
         float: none;
         border: 1px solid rgba(247, 247, 247, 0.14);
-        background: rgba(106, 10, 144, 0.45);
+        border-radius: 0;
+        background: rgba(106, 10, 144, 0.62);
+        box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.18);
     }
 
     .blog-index h2 {
@@ -40,15 +42,18 @@
 
     .blog-index a {
         display: block;
-        padding: 8px 10px;
-        color: rgba(247, 247, 247, 0.68);
+        padding: 10px 12px;
+        border-left: 2px solid transparent;
+        color: rgba(247, 247, 247, 0.72);
         font-size: 0.85rem;
         overflow-wrap: anywhere;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     }
 
     .blog-index a:hover,
     .blog-index a:focus-visible {
-        background: rgba(247, 247, 247, 0.1);
+        background: rgba(247, 247, 247, 0.05);
+        border-left-color: {{ color_scheme.text }};
         color: {{ color_scheme.text }};
     }
 
@@ -63,9 +68,10 @@
         width: 100%;
         margin: 0;
         padding: clamp(24px, 5vw, 64px);
-        border: 1px solid rgba(247, 247, 247, 0.12);
-        background: linear-gradient(145deg, rgba(106, 10, 144, 0.82), rgba(77, 8, 105, 0.7));
-        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(247, 247, 247, 0.14);
+        border-radius: 0;
+        background: rgba(106, 10, 144, 0.7);
+        box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.16);
     }
 
     .blog-article > :first-child {
@@ -148,8 +154,10 @@
     </aside>
     <main class="blog-main">
         <article class="blog-article">{{content | safe}}</article>
+        <a href="/blog/discussions/{{title}}">Go to a discussions section</a>
     </main>
 </div>
+
 <script>
     let activeStart = Date.now();
 let totalActiveTime = 0;

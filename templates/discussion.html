@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block window %}
+<style>
+    .comment {
+        border: 1px solid {{color_scheme.secondary}};
+        border-radius: 0;
+        background: {{color_scheme.primary}};
+        box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.18);
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    #discussion-section {
+        margin: 0 auto;
+        margin-top: 24px;
+        width: 80%;
+    }
+
+    #typing-container {
+        width: 76%;
+        margin: 0 auto;
+        margin-top: 30px;
+        border: 1px solid {{color_scheme.secondary}};
+        background: {{color_scheme.primary}};
+        padding: 40px;
+    }
+
+    .reply-button {
+        float: right;
+    }
+</style>
+<div id="typing-container">
+    <h2>Say what you think</h2>
+    <input type="text" id="comment-author" placeholder="Name" />
+    <input type="text" id="comment-content" placeholder="Type your comment here..." />
+    <input type="hidden" id="comment-reference" value="" />
+    <label>Replying to comment ID: <span id="replying-to"></span></label>
+    <button id="submit-comment" onclick="submitComment()">Submit</button>
+    <script>
+        function clearCommentForm() {
+            document.getElementById('comment-author').value = '';
+            document.getElementById('comment-content').value = '';
+            document.getElementById('comment-reference').value = '';
+            document.getElementById('replying-to').innerText = '';
+        }
+        
+        function submitComment() {
+            const author = document.getElementById('comment-author').value;
+            const content = document.getElementById('comment-content').value;
+            const reference = document.getElementById('comment-reference').value;
+            fetch(`/blog/comments/{{title}}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ author, content, reference })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Comment added successfully') {
+                    clearCommentForm();
+                    loadComments();
+                } else {
+                    console.error('Failed to submit comment:', data.error);
+                }
+            })
+            .catch(error => console.error('Error submitting comment:', error));
+        }
+    </script>
+</div>
+<div id="discussion-section">
+    <script>
+        function replyToComment(commentId, author) {
+            document.getElementById('comment-reference').value = commentId;
+            document.getElementById('replying-to').innerText = author;
+            document.getElementById('comment-author').focus();
+        }
+
+        let latestComment = 0;
+        function loadComments(){
+            const commentsContainer = document.getElementById('discussion-section');
+            commentsContainer.innerHTML = '';
+
+            fetch(`/blog/comments/{{title}}/0`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(comment => {
+                        console.log('Loaded comment:', comment);
+                        const commentDiv = document.createElement('div');
+                        commentDiv.className = 'comment';
+
+                        const parentCommentId = comment.reference ?? comment.refrence;
+                        if (parentCommentId) {
+                            commentDiv.innerHTML = `<strong>${comment.author}</strong> (in reply to <a href="#comment-${parentCommentId}">${parentCommentId}</a>): ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
+                        } else {
+                            commentDiv.innerHTML = `<strong>${comment.author}</strong>: ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
+                        }
+
+                        commentsContainer.appendChild(commentDiv);
+                        if (comment.id > latestComment) {
+                            latestComment = comment.id;
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching comments:', error));
+        }
+        loadComments();
+    </script>
+</div>
+{% endblock %}

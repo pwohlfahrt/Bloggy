@@ -280,8 +280,8 @@
                 });
         }
 
-        function removeComment(id) {
-            fetch(`/admin/delete_comment/${id}`)
+        function removeComment(id, blog_comment = false) {
+            fetch(`/admin/delete_comment/${id}/${blog_comment}`)
                 .then(response => {
                     if (!response.ok) throw new Error(`Removing comment failed (${response.status})`);
                     return response.json();
@@ -326,27 +326,36 @@
             }))
             .catch(error => console.error("Could not render unique views chart:", error));
 
-        fetch("/admin/latest_comments/5")
-            .then(response => response.json())
-            .then(data => {
-                const box = document.getElementById("comment-box");
-                box.innerHTML = "";
-                if (!data.comments.length) {
-                    box.innerHTML = '<li class="empty-state">No comments yet.</li>';
-                    return;
-                }
-                data.comments.forEach(comment => {
-                    const item = document.createElement("li");
-                    item.id = `comment-${comment.id}`;
-                    item.className = "list-item";
-                    item.innerHTML = `<div class="comment-copy"><span class="comment-author"></span><span class="comment-text"></span></div><button class="remove-button" type="button">Remove</button>`;
-                    item.querySelector(".comment-author").textContent = comment.author;
-                    item.querySelector(".comment-text").textContent = comment.content;
-                    item.querySelector("button").onclick = () => removeComment(comment.id);
-                    box.appendChild(item);
-                });
-            })
-            .catch(error => console.error("Could not load latest comments:", error));
+        function loadComments() {
+            console.log("Loading latest comments...");
+            fetch("/admin/latest_comments/5")
+                .then(response => {
+                    console.log("Latest comments response:", response);
+                    return response.json();
+                })
+                .then(data => {
+                    const box = document.getElementById("comment-box");
+                    box.innerHTML = "";
+                    console.log("Loaded comments:", data);
+                    if (!data.comments.length) {
+                        box.innerHTML = '<li class="empty-state">No comments yet.</li>';
+                        return;
+                    }
+                    data.comments.forEach(comment => {
+                        console.log("Loading comment:", comment);
+                        const item = document.createElement("li");
+                        item.id = `comment-${comment.id}`;
+                        item.className = "list-item";
+                        item.innerHTML = `<div class="comment-copy"><span class="comment-author"></span><span class="comment-text"></span></div><button class="remove-button" type="button">Remove</button>`;
+                        item.querySelector(".comment-author").textContent = comment.author;
+                        item.querySelector(".comment-text").textContent = comment.content;
+                        item.querySelector("button").onclick = () => removeComment(comment.id, comment.blog_comment);
+                        box.appendChild(item);
+                    });
+                })
+                .catch(error => console.error("Could not load latest comments:", error));
+            };
+        loadComments();
 
         fetch("/admin/get_plugins")
             .then(response => response.json())

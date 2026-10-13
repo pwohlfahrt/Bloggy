@@ -174,7 +174,7 @@
             function sendComment(){
                 const author = document.getElementById("author").value
                 const content = document.getElementById("content").value
-                fetch("/comments/{{content}}", {
+                fetch("/photos/comments/{{content}}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -183,7 +183,7 @@
                 })
                 location.reload();
             }
-            fetch('/comments/{{content}}')
+            fetch('/photos/comments/{{content}}')
                 .then(response => response.json())
                 .then(data => {
                     const comments = document.getElementById('comments');
