@@ -18,6 +18,8 @@ from utils.context_classes import BlogsContext
 app = flask.Flask(__name__)
 admin = flask.Flask("admin")
 
+app.config.from_pyfile('config.py')
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG if app.config.get('DEBUG', False) else logging.INFO)
 logger.addHandler(logging.FileHandler(f'logs/{datetime.datetime.now().strftime("%Y-%m-%d")}.log'))
@@ -83,8 +85,6 @@ def load_plugins(app, admin, logger):
         module.init_plugin(app, admin, logger)
 
 if __name__ == '__main__':
-    app.config.from_pyfile('config.py')
-
     init_db()
     cdn.init_cdn(app, logger)
     comments.init_comments(app, logger)
@@ -100,6 +100,7 @@ if __name__ == '__main__':
         target=lambda: admin.run(
             debug=app.config['DEBUG'],
             use_reloader=False,
+            host=app.config['HOST'],
             port=app.config['ADMIN_PORT']
         ),
         daemon=True
@@ -107,5 +108,6 @@ if __name__ == '__main__':
     app.run(
         debug=app.config['DEBUG'],
         use_reloader=False,
+        host=app.config['HOST'],
         port=app.config['APP_PORT']
     )

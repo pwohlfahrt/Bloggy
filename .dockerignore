@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+bin/
+include/
+lib/
+lib64/
+pyvenv.cfg
+__pycache__/
+**/__pycache__/
+logs/
+*.db
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+TODO.md

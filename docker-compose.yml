@@ -1,0 +1,13 @@
+services:
+  bloggy:
+    build: .
+    ports:
+      - "8000:8000"
+      - "127.0.0.1:7999:7999"
+    environment:
+      - HOST=0.0.0.0
+    volumes:
+      - ./content:/app/content
+      - ./data.db:/app/data.db
+      - ./logs:/app/logs
+    restart: unless-stopped

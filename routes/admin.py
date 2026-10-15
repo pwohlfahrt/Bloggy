@@ -6,6 +6,10 @@ from database.admin import delete_comment
 
 def init_admin(app, admin, logging):
 
+    @admin.route('/')
+    def admin_root():
+        return flask.redirect('/admin')
+
     @admin.route('/admin')
     def admin_console():
         logging.warning("Serving admin console. Is it u?")
