@@ -100,6 +100,12 @@
             }, { once: true });
         }
 
+        function escapeCommentText(value) {
+            const element = document.createElement('span');
+            element.textContent = value == null ? '' : String(value);
+            return element.innerHTML;
+        }
+
         let latestComment = 0;
         function loadComments(){
             const commentsContainer = document.getElementById('discussion-section');
@@ -115,10 +121,14 @@
                         commentDiv.id = `comment-${comment.id}`;
 
                         const parentCommentId = comment.reference ?? comment.refrence;
+                        const author = escapeCommentText(comment.author);
+                        const content = escapeCommentText(comment.content);
+                        const id = escapeCommentText(comment.id);
                         if (parentCommentId) {
-                            commentDiv.innerHTML = `<strong>${comment.author}</strong> (in reply to <button onclick="scrollToComment('${parentCommentId}')">${parentCommentId}</button>): ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
+                            const reference = escapeCommentText(parentCommentId);
+                            commentDiv.innerHTML = `<strong>${author}</strong> (in reply to <button onclick="scrollToComment('${reference}')">${reference}</button>): ${content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${id}', '${author}')">Reply</button>`;
                         } else {
-                            commentDiv.innerHTML = `<strong>${comment.author}</strong>: ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
+                            commentDiv.innerHTML = `<strong>${author}</strong>: ${content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${id}', '${author}')">Reply</button>`;
                         }
 
                         commentsContainer.appendChild(commentDiv);
