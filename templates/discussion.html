@@ -28,6 +28,16 @@
     .reply-button {
         float: right;
     }
+
+    @keyframes comment-highlight {
+        0% { outline: 3px solid transparent; outline-offset: 3px; }
+        25% { outline: 3px solid {{color_scheme.secondary}}; outline-offset: 3px; }
+        100% { outline: 3px solid transparent; outline-offset: 3px; }
+    }
+
+    .comment.highlight {
+        animation: comment-highlight 1.6s ease;
+    }
 </style>
 <div id="typing-container">
     <h2>Say what you think</h2>
@@ -76,6 +86,20 @@
             document.getElementById('comment-author').focus();
         }
 
+        function scrollToComment(commentId) {
+            const commentElement = document.getElementById(`comment-${commentId}`);
+            if (!commentElement) {
+                return;
+            }
+            commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            commentElement.classList.remove('highlight');
+            void commentElement.offsetWidth;
+            commentElement.classList.add('highlight');
+            commentElement.addEventListener('animationend', () => {
+                commentElement.classList.remove('highlight');
+            }, { once: true });
+        }
+
         let latestComment = 0;
         function loadComments(){
             const commentsContainer = document.getElementById('discussion-section');
@@ -88,10 +112,11 @@
                         console.log('Loaded comment:', comment);
                         const commentDiv = document.createElement('div');
                         commentDiv.className = 'comment';
+                        commentDiv.id = `comment-${comment.id}`;
 
                         const parentCommentId = comment.reference ?? comment.refrence;
                         if (parentCommentId) {
-                            commentDiv.innerHTML = `<strong>${comment.author}</strong> (in reply to <a href="#comment-${parentCommentId}">${parentCommentId}</a>): ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
+                            commentDiv.innerHTML = `<strong>${comment.author}</strong> (in reply to <button onclick="scrollToComment('${parentCommentId}')">${parentCommentId}</button>): ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
                         } else {
                             commentDiv.innerHTML = `<strong>${comment.author}</strong>: ${comment.content} <em>${new Date(comment.created_at).toLocaleString()}</em><button class="reply-button" onclick="replyToComment('${comment.id}', '${comment.author}')">Reply</button>`;
                         }

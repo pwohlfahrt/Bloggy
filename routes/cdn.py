@@ -3,18 +3,20 @@ import flask
 from utils.context_classes import BlogsContext
 
 def init_cdn(app, logger):
-    empty_ctx = BlogsContext(content='',
-                color_scheme=app.config['COLOR_SCHEME'],
-                blog_name=app.config['BLOG_NAME'],
-                links=app.config['NAV_LINKS'],
-                all_articles=app.config['ALL_ARTICLES']
-            )
+    def make_ctx(content='', title=''):
+        return BlogsContext(
+            content=content,
+            color_scheme=app.config['COLOR_SCHEME'],
+            blog_name=app.config['BLOG_NAME'],
+            links=app.config['NAV_LINKS'],
+            all_articles=app.config['ALL_ARTICLES'],
+            title=title,
+        )
 
     @app.route('/')
     def home():
         try:
-            ctx =  empty_ctx
-            ctx.content = app.config["HOMEPAGE_TEXT"]
+            ctx = make_ctx(content=app.config["HOMEPAGE_TEXT"])
             res = flask.render_template('index.html', **ctx.__dict__)
             logger.debug("Serving home page.")
             return res
@@ -25,7 +27,8 @@ def init_cdn(app, logger):
     @app.route('/blogs')
     def blogs():
         try:
-            res = flask.render_template('blogs.html', **empty_ctx.__dict__)
+            ctx = make_ctx()
+            res = flask.render_template('blogs.html', **ctx.__dict__)
             logger.debug("Serving blogs page.")
             return res
         except Exception as e:
@@ -35,8 +38,7 @@ def init_cdn(app, logger):
     @app.route('/photos')
     def photos():
         try:
-            ctx = empty_ctx
-            ctx.content = app.config["PHOTOS_NAMES"]
+            ctx = make_ctx(content=app.config["PHOTOS_NAMES"])
             res = flask.render_template('photos.html', **ctx.__dict__, quote=app.config['PHOTO_QUOTE'])
             logger.debug("Serving photos page.")
             return res
@@ -59,8 +61,7 @@ def init_cdn(app, logger):
     @app.route('/blog/discussions/<blog>')
     def serve_discussion(blog: str):
         try:
-            ctx = empty_ctx
-            ctx.title = blog
+            ctx = make_ctx(title=blog)
             logger.debug(f"Serving discussion page for {blog}")
             return flask.render_template('discussion.html', **ctx.__dict__)
         except Exception as e:
