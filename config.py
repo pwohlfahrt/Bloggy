@@ -3,6 +3,7 @@ DEBUG = True
 APP_PORT = 8000
 ADMIN_PORT = 7999
 HOST = os.environ.get('HOST', '127.0.0.1')
+RATE_LIMIT = '100 per hour'
 BLOG_NAME = 'My Blog'
 NAV_LINKS = [
     {'name': 'Blogs', 'url': '/blogs'},
