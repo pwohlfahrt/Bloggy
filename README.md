@@ -16,6 +16,12 @@ A lightweight, self-hosted blog engine written in Flask. Write posts in Markdown
 
 ## Quick start
 
+Recomended way (docker compose):
+```bash
+docker compose up -d
+```
+Advanced setup:
+
 ```bash
 git clone https://github.com/pwohlfahrt/Bloggy
 cd Bloggy
