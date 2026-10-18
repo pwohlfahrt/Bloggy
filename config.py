@@ -1,7 +1,7 @@
 import os
 DEBUG = True
-APP_PORT = 8000
-ADMIN_PORT = 7999
+APP_PORT = 7999
+ADMIN_PORT = 7998
 HOST = os.environ.get('HOST', '127.0.0.1')
 RATE_LIMIT = '100 per hour'
 BLOG_NAME = 'My Blog'

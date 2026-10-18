@@ -1,7 +1,7 @@
 import peewee
 import datetime
 
-db = peewee.SqliteDatabase('data.db')
+db = peewee.SqliteDatabase('content/data.db')
 
 class Comment(peewee.Model):
     id = peewee.AutoField()

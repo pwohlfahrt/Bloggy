@@ -2,8 +2,8 @@ services:
   bloggy:
     build: .
     ports:
-      - "8000:8000"
-      - "127.0.0.1:7999:7999"
+      - "7999:7999"
+      - "127.0.0.1:7998:7998"
     environment:
       - HOST=0.0.0.0
     volumes:
