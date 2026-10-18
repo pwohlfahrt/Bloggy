@@ -2,6 +2,8 @@
 
 A lightweight, self-hosted blog engine written in Flask. Write posts in Markdown, drop photos in a folder, and get a full blog with comments, discussion threads, view analytics, and an admin panel.
 
+Try it out here: https://homelab.taila52305.ts.net
+
 ## Features
 
 - **Markdown blogs** - drop `.md` files into `content/blogs/`, they show up automatically

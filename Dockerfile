@@ -8,7 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN mkdir -p logs
-RUN mkdir -p content/photos
 
 RUN mkdir -p /content && touch /content/data.db
 
