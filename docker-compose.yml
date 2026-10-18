@@ -3,7 +3,7 @@ services:
     build: .
     ports:
       - "7999:7999"
-      - "127.0.0.1:7998:7998"
+      - "7998:7998"
     environment:
       - HOST=0.0.0.0
     volumes:
